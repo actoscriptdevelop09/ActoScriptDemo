@@ -174,7 +174,9 @@ class MenuListActivity : AppCompatActivity(), CategoryItemClickListener, AddToCa
             )
         }
         sharePrefsList = Constant.addNewList(this, cartList, quantity)
-        
+
+        Log.d(TAG, "onItemFetched____check__final:${cartList.size}__${sharePrefsList.size}")
+
     }
 
     override fun onResume() {
