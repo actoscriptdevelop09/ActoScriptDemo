@@ -3,6 +3,7 @@ package com.example.actoscriptdemo.ui
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
@@ -35,6 +36,7 @@ class MenuListActivity : AppCompatActivity(), CategoryItemClickListener, AddToCa
     var stateList = ArrayList<String>()
     var stateIdList = ArrayList<String>()
     private lateinit var itemAdapter: MenuItemsAdapter
+    private lateinit var categoryAdapter: CategoryAdapter
     private lateinit var viewModel: MyViewModel
 
 
@@ -43,7 +45,6 @@ class MenuListActivity : AppCompatActivity(), CategoryItemClickListener, AddToCa
         binding = ActivityMenuListBinding.inflate(layoutInflater)
         setContentView(binding.root)
         viewModel = ViewModelProvider(this)[MyViewModel::class.java]
-
         getAPIResponse()
         handleClickEvents()
 
@@ -64,10 +65,12 @@ class MenuListActivity : AppCompatActivity(), CategoryItemClickListener, AddToCa
             stateId = categoryList[i].FOODCATEGORYID
             stateIdList.add(stateId!!)
         }
-        val adapter = CategoryAdapter(categoryList, stateList.distinct(), stateIdList.distinct())
-        binding.recyclerCategory.adapter = adapter
-        adapter.setOnItemClickListener(this)
-        adapter.selectedPosition = 0
+        categoryAdapter =
+            CategoryAdapter(categoryList, stateList.distinct(), stateIdList.distinct())
+        binding.recyclerCategory.adapter = categoryAdapter
+        categoryAdapter.setOnItemClickListener(this)
+        categoryAdapter.selectedPosition = 0
+        categoryAdapter.notifyDataSetChanged()
 
     }
 
@@ -80,6 +83,7 @@ class MenuListActivity : AppCompatActivity(), CategoryItemClickListener, AddToCa
         val anim: Animation = AnimationUtils.loadAnimation(this, R.anim.anim_bottom_to_top)
         binding.recyclerItems.startAnimation(anim)
         itemAdapter.setOnCartClickListener(this)
+        itemAdapter.notifyDataSetChanged()
 
     }
 
@@ -103,10 +107,15 @@ class MenuListActivity : AppCompatActivity(), CategoryItemClickListener, AddToCa
     }
 
     private fun getAPIResponse() {
+
         viewModel.fetchDataFromApi()
 
         categoryItemList.clear()
         viewModel.mLiveDataList.observe(this) {
+            Log.d(
+                TAG,
+                "onResponse__liveDatalist__: ${it.size}"
+            )
             if (it != null) {
                 val detailList = it
                 detailList.forEach {
@@ -173,7 +182,7 @@ class MenuListActivity : AppCompatActivity(), CategoryItemClickListener, AddToCa
                 "onItemFetched____check__else : ${cartList.size}___ ${check}___${sharePrefsList.size}"
             )
         }
-        sharePrefsList = Constant.addNewList(this, cartList, quantity)
+        sharePrefsList = Constant.addNewList(this, cartList)
 
         Log.d(TAG, "onItemFetched____check__final:${cartList.size}__${sharePrefsList.size}")
 
@@ -181,8 +190,10 @@ class MenuListActivity : AppCompatActivity(), CategoryItemClickListener, AddToCa
 
     override fun onResume() {
         super.onResume()
-        if (::itemAdapter.isInitialized) {
+        if (::itemAdapter.isInitialized && ::categoryAdapter.isInitialized) {
+
             itemAdapter.notifyDataSetChanged()
+            categoryAdapter.notifyDataSetChanged()
         }
     }
 

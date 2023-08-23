@@ -17,9 +17,13 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-            android:name=".ui.CartDetailsActivity"
+            android:name=".ui.PaymentActivity"
             android:exported="false"
             android:screenOrientation="landscape"/>
+        <activity
+            android:name=".ui.CartDetailsActivity"
+            android:exported="false"
+            android:screenOrientation="landscape" />
         <activity
             android:name=".ui.LedgerActivity"
             android:exported="false"
@@ -48,11 +52,6 @@
             android:label="@string/app_name"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.ActoScriptDemo">
-           <!-- <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>-->
         </activity>
     </application>
 

@@ -1,6 +1,5 @@
 package com.example.actoscriptdemo.model
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import com.example.actoscriptdemo.api.DETAILS
@@ -39,8 +38,7 @@ object Constant {
 
     // Add a new list to the existing list and save to SharedPreferences
     fun addNewList(
-        context: Context, newList: List<DETAILS>,
-        quantity: String?
+        context: Context, newList: List<DETAILS>
     ): ArrayList<DETAILS> {
         existingList = getExistingList(context)
         var id: String? = null
@@ -78,6 +76,33 @@ object Constant {
     fun getButtonClick(context: Context, key: String): Boolean? {
         val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         return sharedPreferences.getBoolean(key, true)
+    }
+
+    fun updateListWithNewData(context: Context, newList: MutableList<DETAILS>): MutableList<DETAILS> {
+        newList.forEach {
+            Log.d("TAG___", "updateListWithNewData__updatedList: ${it.ITEAMNAME}")
+        }
+        val sharedPreferences =
+            context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        val gson = Gson()
+        val updatedJson = gson.toJson(newList)
+        val editor = sharedPreferences.edit()
+        editor.putString("data_", updatedJson)
+        Log.d("TAG___", "addNewList___to_sharePrefs: $updatedJson")
+        editor.apply()
+        return newList
+    }
+
+    fun saveItemPrice(context: Context, key: String, value: Int) {
+        val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putInt(key, value)
+        editor.apply()
+    }
+
+    fun getItemPrice(context: Context, key: String): Int? {
+        val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        return sharedPreferences.getInt(key, 0)
     }
 
 }

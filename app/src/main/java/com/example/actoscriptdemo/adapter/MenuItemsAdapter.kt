@@ -10,6 +10,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.actoscriptdemo.R
 import com.example.actoscriptdemo.api.DETAILS
 import com.example.actoscriptdemo.callBack.AddToCartClickListener
@@ -42,8 +43,11 @@ class MenuItemsAdapter(private val mList: ArrayList<DETAILS>) :
         }
         holder.tvPrice.text = itemsViewModel.PRICE
 
-        //cart click
+        Glide.with(context)
+            .load(itemsViewModel.IMAGEURL)
+            .into(holder.itemImage)
 
+        //cart click
         val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         val isButtonClicked = sharedPreferences.getBoolean("isButtonClicked_${itemsViewModel.FOODCATEGORYITEMID}", false)
 
@@ -101,6 +105,7 @@ class MenuItemsAdapter(private val mList: ArrayList<DETAILS>) :
         }
 
         // +/- btn click
+        var finalPrice : Int = itemsViewModel.PRICE?.toInt()!!
         var quantity = itemsViewModel.QUANTITY?.toInt()!!
         var getSharePrefs = Constant.getItem(context,"count_${mList[position].FOODCATEGORYITEMID}")
         if (getSharePrefs == "" || getSharePrefs == null){
@@ -118,15 +123,20 @@ class MenuItemsAdapter(private val mList: ArrayList<DETAILS>) :
 
         }
         holder.imgPlus.setOnClickListener {
+            val price = itemsViewModel.PRICE?.toInt()!!
+
             quantity = if (getSharePrefs == "" || getSharePrefs == null){
                 quantity!! + 1
             } else{
                 holder.tvCount.text.toString().toInt() + 1
             }
+            finalPrice += price
             SaveItemView(position, itemView = holder.imgPlus)
-            saveQuantity(holder.tvCount,quantity.toString(),mList[position].FOODCATEGORYITEMID)
+            saveQuantity(holder.tvCount,quantity.toString(),mList[position].FOODCATEGORYITEMID,finalPrice)
         }
         holder.imgMinus.setOnClickListener {
+            var price = itemsViewModel.PRICE?.toInt()!!
+
             Log.d("TAG", "onBindViewHolder__quantity__:${quantity}____  ${holder.tvCount.text.toString().toInt() - 1}____ ${getSharePrefs}")
 
             if (holder.tvCount.text.toString().toInt() > 1){
@@ -135,8 +145,10 @@ class MenuItemsAdapter(private val mList: ArrayList<DETAILS>) :
                 } else{
                     holder.tvCount.text.toString().toInt() - 1
                 }
+                finalPrice -= price
+
                 SaveItemView(position, itemView = holder.imgMinus)
-                saveQuantity(holder.tvCount,quantity.toString(),mList[position].FOODCATEGORYITEMID)
+                saveQuantity(holder.tvCount,quantity.toString(),mList[position].FOODCATEGORYITEMID,finalPrice)
             }
         }
     }
@@ -155,26 +167,19 @@ class MenuItemsAdapter(private val mList: ArrayList<DETAILS>) :
         val tvCount: TextView = itemView.findViewById(R.id.tvCount)
         val imgPlus: ImageView = itemView.findViewById(R.id.imgPlus)
         val imgMinus: ImageView = itemView.findViewById(R.id.imgMinus)
+        val itemImage: ImageView = itemView.findViewById(R.id.imgItem)
     }
 
-    private fun saveQuantity(textView: TextView, quantity: String, foodcategoryitemid: String?) {
+    private fun saveQuantity(
+        textView: TextView,
+        quantity: String,
+        foodcategoryitemid: String?,
+        finalPrice: Int
+    ) {
+        Log.d("TAG", "saveQuantity: $finalPrice")
        Constant.saveItem(context,"count_${foodcategoryitemid}",quantity)
-        textView.text = Constant.getItem(context,"count_${foodcategoryitemid}")
-
-    }
-
-    private fun getItemUpdate(itemView: View, quantity: String): String? {
-        val sharedPreferences = itemView.context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
-        val selectedPosition = sharedPreferences.getInt("selectedPosition", -1)
-        val originalData = mList
-        val selectedItem = originalData[selectedPosition]
-        selectedItem.QUANTITY = quantity
-        val gson = Gson()
-        val updatedDataJson = gson.toJson(originalData)
-        val editor = sharedPreferences.edit()
-        editor.putString("dataKey", updatedDataJson)
-        editor.apply()
-        return updatedDataJson
+       textView.text = Constant.getItem(context,"count_${foodcategoryitemid}")
+       Constant.saveItemPrice(context,"price_${foodcategoryitemid}", finalPrice)
     }
 
     private fun SaveItemView(position: Int, itemView: View){

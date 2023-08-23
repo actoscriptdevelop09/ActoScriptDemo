@@ -14,9 +14,11 @@ data class DETAILS (
   @SerializedName("FOOD_CATEGORY_ITEMID" ) var FOODCATEGORYITEMID : String? = null,
   @SerializedName("ITEAMNAME"            ) var ITEAMNAME          : String? = null,
   @SerializedName("PRICE"                ) var PRICE              : String? = null,
-  @SerializedName("QUANTITY"             ) var QUANTITY           : String? = null
+  @SerializedName("QUANTITY"             ) var QUANTITY           : String? = null,
+  @SerializedName("IMAGEURL"             ) var IMAGEURL           : String? = null
 ) : Parcelable {
   constructor(parcel: Parcel) : this(
+    parcel.readString(),
     parcel.readString(),
     parcel.readString(),
     parcel.readString(),
@@ -35,6 +37,7 @@ data class DETAILS (
     parcel.writeString(ITEAMNAME)
     parcel.writeString(PRICE)
     parcel.writeString(QUANTITY)
+    parcel.writeString(IMAGEURL)
   }
 
   override fun describeContents(): Int {

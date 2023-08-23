@@ -45,8 +45,6 @@ class MyViewModel : ViewModel() {
                             val detailList = serviceResponse.SERVICERESPONSE!!.DETAILSLIST!!.DETAILS
                                 liveDataList.value = detailList
 
-
-
                             //first category data set only
 //                            var previousId: String? = null
 //                            for (item in detailList) {
