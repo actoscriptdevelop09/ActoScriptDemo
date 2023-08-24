@@ -15,6 +15,7 @@
         android:layout_marginTop="10dp"
         android:orientation="horizontal"
         android:layout_gravity="top"
+        android:background="@color/white"
         android:gravity="center">
         <TextView
             android:id="@+id/txtAddCart"
@@ -66,6 +67,17 @@
             android:textColor="@color/black"
             android:text="RS. 5000"/>
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvNoItemFound"
+        android:text="No item found"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:textSize="25sp"
+        android:textColor="@color/black"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
     <TextView
         android:id="@+id/btnOrderNow"

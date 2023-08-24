@@ -3,24 +3,33 @@ package com.example.actoscriptdemo.ui
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
 import android.util.Log
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.distinctUntilChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.actoscriptdemo.R
 import com.example.actoscriptdemo.adapter.CategoryAdapter
 import com.example.actoscriptdemo.adapter.MenuItemsAdapter
 import com.example.actoscriptdemo.api.DETAILS
+import com.example.actoscriptdemo.api.FoodCategoryItemApiService
+import com.example.actoscriptdemo.api.FoodCategoryItemResponse
+import com.example.actoscriptdemo.api.FoodCatogoryItemRestClient
 import com.example.actoscriptdemo.callBack.AddToCartClickListener
 import com.example.actoscriptdemo.callBack.CategoryItemClickListener
 import com.example.actoscriptdemo.databinding.ActivityMenuListBinding
 import com.example.actoscriptdemo.model.Constant
+import com.example.actoscriptdemo.model.MyApp
 import com.example.actoscriptdemo.viewModel.MyViewModel
 import com.google.gson.Gson
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 
 class MenuListActivity : AppCompatActivity(), CategoryItemClickListener, AddToCartClickListener {
@@ -30,6 +39,7 @@ class MenuListActivity : AppCompatActivity(), CategoryItemClickListener, AddToCa
     private val categoryItemList: ArrayList<DETAILS> = ArrayList()
     private val cartList: ArrayList<DETAILS> = ArrayList()
     private var sharePrefsList: ArrayList<DETAILS> = ArrayList()
+    private var newSharePrefsList = MutableLiveData<ArrayList<DETAILS>>()
     private val firstCategoryItemList: ArrayList<DETAILS> = ArrayList()
     private var passItemList: DETAILS = DETAILS()
     private val itemList: ArrayList<DETAILS> = ArrayList()
@@ -97,6 +107,7 @@ class MenuListActivity : AppCompatActivity(), CategoryItemClickListener, AddToCa
             if (stateId == it.FOODCATEGORYID) {
                 itemList.add(it)
                 setItemView(itemList)
+
                 Log.d(
                     TAG,
                     "onDataFetched______: ${itemList.size} ${stateName}___${it.ITEAMNAME}___"
@@ -109,13 +120,13 @@ class MenuListActivity : AppCompatActivity(), CategoryItemClickListener, AddToCa
     private fun getAPIResponse() {
 
         viewModel.fetchDataFromApi()
-
         categoryItemList.clear()
-        viewModel.mLiveDataList.observe(this) {
+        viewModel.mLiveDataList.distinctUntilChanged().observe(this) { it ->
             Log.d(
                 TAG,
-                "onResponse__liveDatalist__: ${it.size}"
+                "onResponse__liveDatalist__: ${it.distinct().size}___"
             )
+
             if (it != null) {
                 val detailList = it
                 detailList.forEach {
@@ -140,7 +151,6 @@ class MenuListActivity : AppCompatActivity(), CategoryItemClickListener, AddToCa
                 setCategoryView(categoryItemList)
                 setItemView(firstCategoryItemList)
             }
-
         }
 
     }
@@ -182,19 +192,37 @@ class MenuListActivity : AppCompatActivity(), CategoryItemClickListener, AddToCa
                 "onItemFetched____check__else : ${cartList.size}___ ${check}___${sharePrefsList.size}"
             )
         }
-        sharePrefsList = Constant.addNewList(this, cartList)
-
-        Log.d(TAG, "onItemFetched____check__final:${cartList.size}__${sharePrefsList.size}")
-
+        sharePrefsList = Constant.addNewList(this, cartList, "add")
     }
 
     override fun onResume() {
         super.onResume()
-        if (::itemAdapter.isInitialized && ::categoryAdapter.isInitialized) {
 
-            itemAdapter.notifyDataSetChanged()
-            categoryAdapter.notifyDataSetChanged()
+        if (::itemAdapter.isInitialized && ::categoryAdapter.isInitialized) {
+            val existingList = Constant.getExistingList(this)
+            val tempArrayList = Constant.getExistingList(this)
+            sharePrefsList!!.forEach {
+                if (tempArrayList != null && tempArrayList.isNotEmpty()) {
+                    existingList.forEach { exist ->
+                        if (it.FOODCATEGORYITEMID == exist.FOODCATEGORYITEMID!!) {
+                            tempArrayList.remove(exist)
+                        }
+                    }
+                    Log.d(TAG, "onResume___item_____if_____: ${sharePrefsList.size}")
+                }
+                else {
+                    //recreate()
+                    sharePrefsList.remove(it)
+                    itemAdapter.removeItem(it)
+                    Log.d(
+                        TAG,
+                        "onResume___item_____else_____: ${sharePrefsList.size}___${it.ITEAMNAME}"
+                    )
+
+                }
+            }
         }
     }
+
 
 }

@@ -44,23 +44,7 @@ class MyViewModel : ViewModel() {
                         if (serviceResponse != null) {
                             val detailList = serviceResponse.SERVICERESPONSE!!.DETAILSLIST!!.DETAILS
                                 liveDataList.value = detailList
-
-                            //first category data set only
-//                            var previousId: String? = null
-//                            for (item in detailList) {
-//                                if (previousId == null || previousId == item.FOODCATEGORYID) {
-//                                    firstCategoryItemList.add(item)
-//                                    previousId = item.FOODCATEGORYID
-//                                    Log.d(
-//                                        TAG,
-//                                        "onResponse__detailList__: ${firstCategoryItemList.size}"
-//                                    )
-//
-//                                } else {
-//                                    Log.d(TAG, "onResponse__detailList__: Break")
-//                                    break // Stop loading when ID changes
-//                                }
-//                            }
+                            Log.d(TAG, "onResponse____sucess-->: ${liveDataList.value!!.size}")
                         }
 
                     }
@@ -79,4 +63,5 @@ class MyViewModel : ViewModel() {
             }
         })
     }
+
 }

@@ -8,8 +8,6 @@ import com.google.gson.reflect.TypeToken
 
 object Constant {
 
-    var existingList = ArrayList<DETAILS>()
-
     fun saveItem(context: Context, key: String, value: String) {
         val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
@@ -33,25 +31,33 @@ object Constant {
             object : TypeToken<ArrayList<DETAILS>>() {}.type
         )
 
+        Log.d("TAG", "getExistingList+--: $existingList")
+
         return existingList ?: ArrayList()
     }
 
     // Add a new list to the existing list and save to SharedPreferences
     fun addNewList(
-        context: Context, newList: List<DETAILS>
+        context: Context, newList: List<DETAILS>, check : String
     ): ArrayList<DETAILS> {
-        existingList = getExistingList(context)
-        var id: String? = null
-        if (newList.isNotEmpty()) {
+        var existingList = ArrayList<DETAILS>()
 
-            newList.forEach {
-                existingList?.add(it)
+        if (check == "add"){
+            existingList = getExistingList(context)
+            var id: String? = null
+            if (newList.isNotEmpty()) {
+
+                newList.forEach {
+                    existingList?.add(it)
+                }
+                Log.d(
+                    "SharePrefs",
+                    "getExistingList__id__1___if: ${existingList.size}___${newList.size}"
+                )
             }
-            Log.d(
-                "SharePrefs",
-                "getExistingList__id__1___if: ${existingList.size}___${newList.size}"
-            )
-
+        }
+        else{
+            existingList.addAll(newList)
         }
 
         Log.d("SharePrefs", "getExistingList: ${existingList.size}___${newList.size}")
@@ -80,7 +86,7 @@ object Constant {
 
     fun updateListWithNewData(context: Context, newList: MutableList<DETAILS>): MutableList<DETAILS> {
         newList.forEach {
-            Log.d("TAG___", "updateListWithNewData__updatedList: ${it.ITEAMNAME}")
+            Log.d("TAG___", "updateListWithNewData__updatedList: ${it.ITEAMNAME}__${it.QUANTITY}")
         }
         val sharedPreferences =
             context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)

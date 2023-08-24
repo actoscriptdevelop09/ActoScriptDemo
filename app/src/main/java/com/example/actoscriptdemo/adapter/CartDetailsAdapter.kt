@@ -136,6 +136,7 @@ class CartDetailsAdapter(private var mList: List<DETAILS>) :
             }
 
         } else {
+
             holder.cardItemView.visibility = View.GONE
         }
         //      }

@@ -56,3 +56,20 @@
     </application>
 
 </manifest>
+
+  <!--  SELECT * from Food_Category_Item
+
+    delete from Food_Category_Item where Food_Category_Itemid = 134
+        Insert into Food_Category_Item (
+        Food_CategoryId
+        ,IteamName
+        ,Price
+        ,Quantity
+
+        )
+        values (
+        193,
+        'add/remove item',
+        100,
+        1
+        )-->

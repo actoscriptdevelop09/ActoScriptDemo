@@ -15,7 +15,6 @@ import com.example.actoscriptdemo.R
 import com.example.actoscriptdemo.api.DETAILS
 import com.example.actoscriptdemo.callBack.AddToCartClickListener
 import com.example.actoscriptdemo.model.Constant
-import com.google.gson.Gson
 
 
 class MenuItemsAdapter(private val mList: ArrayList<DETAILS>) :
@@ -96,9 +95,6 @@ class MenuItemsAdapter(private val mList: ArrayList<DETAILS>) :
                 editor.putBoolean("isButtonClicked_${itemsViewModel.FOODCATEGORYITEMID}", true)
             }
             editor.apply()
-
-        //    checkClickEvent(itemsViewModel.FOODCATEGORYITEMID)
-
 
             Log.d("TAG", "updateButtonState___checkkk+=: ${isButtonClicked}___${Constant.getButtonClick(context,"check")}")
             updateButtonState( holder.addToCart,holder.tvAddCart,holder.tvCount,holder.imgCart,position,itemsViewModel.FOODCATEGORYITEMID)
@@ -234,6 +230,15 @@ class MenuItemsAdapter(private val mList: ArrayList<DETAILS>) :
             imgCart.setImageDrawable(res)
             Log.d("TAG", "onBindViewHolder___getItemUpdate__1: ${ tvCount.text.toString()}")
             mClickListener.onItemFetched(mList[position],position,tvCount.text.toString(),mList[position].FOODCATEGORYITEMID,true )
+        }
+    }
+
+    fun removeItem(item: DETAILS) {
+        val position = mList.indexOf(item)
+        if (position != -1) {
+            mList.removeAt(position)
+            notifyItemRemoved(position)
+            notifyDataSetChanged()
         }
     }
 
