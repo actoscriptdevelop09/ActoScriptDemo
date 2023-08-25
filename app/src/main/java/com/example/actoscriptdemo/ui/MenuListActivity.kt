@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.TextView
@@ -36,7 +37,7 @@ class MenuListActivity : AppCompatActivity(), CategoryItemClickListener, AddToCa
 
     private lateinit var binding: ActivityMenuListBinding
     private val TAG = "MainActivity"
-    private val categoryItemList: ArrayList<DETAILS> = ArrayList()
+    private var categoryItemList: ArrayList<DETAILS> = ArrayList()
     private val cartList: ArrayList<DETAILS> = ArrayList()
     private var sharePrefsList: ArrayList<DETAILS> = ArrayList()
     private var newSharePrefsList = MutableLiveData<ArrayList<DETAILS>>()
@@ -55,6 +56,7 @@ class MenuListActivity : AppCompatActivity(), CategoryItemClickListener, AddToCa
         binding = ActivityMenuListBinding.inflate(layoutInflater)
         setContentView(binding.root)
         viewModel = ViewModelProvider(this)[MyViewModel::class.java]
+        binding.progressBar.visibility=View.VISIBLE
         getAPIResponse()
         handleClickEvents()
 
@@ -75,13 +77,12 @@ class MenuListActivity : AppCompatActivity(), CategoryItemClickListener, AddToCa
             stateId = categoryList[i].FOODCATEGORYID
             stateIdList.add(stateId!!)
         }
-        categoryAdapter =
-            CategoryAdapter(categoryList, stateList.distinct(), stateIdList.distinct())
+        categoryAdapter = CategoryAdapter(categoryList, stateList.distinct(), stateIdList.distinct())
         binding.recyclerCategory.adapter = categoryAdapter
         categoryAdapter.setOnItemClickListener(this)
         categoryAdapter.selectedPosition = 0
         categoryAdapter.notifyDataSetChanged()
-
+        binding.progressBar.visibility=View.GONE
     }
 
     private fun setItemView(itemList: ArrayList<DETAILS>) {
@@ -118,9 +119,8 @@ class MenuListActivity : AppCompatActivity(), CategoryItemClickListener, AddToCa
     }
 
     private fun getAPIResponse() {
-
+        val apiCategoryItemList: ArrayList<DETAILS> = ArrayList()
         viewModel.fetchDataFromApi()
-        categoryItemList.clear()
         viewModel.mLiveDataList.distinctUntilChanged().observe(this) { it ->
             Log.d(
                 TAG,
@@ -130,8 +130,10 @@ class MenuListActivity : AppCompatActivity(), CategoryItemClickListener, AddToCa
             if (it != null) {
                 val detailList = it
                 detailList.forEach {
-                    categoryItemList.add(it)
+                    apiCategoryItemList.add(it)
+                    Constant.saveCategoryItemList(this,apiCategoryItemList)
                 }
+                categoryItemList = Constant.getCategoryItemList(this)
                 //first category data set only
                 var previousId: String? = null
                 for (item in categoryItemList) {
@@ -150,6 +152,9 @@ class MenuListActivity : AppCompatActivity(), CategoryItemClickListener, AddToCa
                 }
                 setCategoryView(categoryItemList)
                 setItemView(firstCategoryItemList)
+            }
+            else{
+                binding.progressBar.visibility=View.GONE
             }
         }
 
@@ -214,6 +219,7 @@ class MenuListActivity : AppCompatActivity(), CategoryItemClickListener, AddToCa
                     //recreate()
                     sharePrefsList.remove(it)
                     itemAdapter.removeItem(it)
+                    categoryItemList.remove(it)
                     Log.d(
                         TAG,
                         "onResume___item_____else_____: ${sharePrefsList.size}___${it.ITEAMNAME}"

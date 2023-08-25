@@ -64,6 +64,7 @@ class CartDetailsAdapter(private var mList: List<DETAILS>) :
             } else {
                 finalPrice = itemsViewModel.PRICE!!.toInt()
                 holder.tvItemPrice.text = itemsViewModel.PRICE
+                Constant.saveItemPrice(context,"price_${itemsViewModel.FOODCATEGORYITEMID}", itemsViewModel.PRICE!!.toInt())
             }
             Log.d("TAG", "onBindViewHolder___finalPrice: $finalPrice")
 
@@ -74,19 +75,8 @@ class CartDetailsAdapter(private var mList: List<DETAILS>) :
                 Constant.getItem(context, "count_${mList[position].FOODCATEGORYITEMID}")
             if (getSharePrefsItem == "" || getSharePrefsItem == null) {
                 holder.tvQuantity.text = quantity.toString()
+                Constant.saveItem(context, "count_${mList[position].FOODCATEGORYITEMID}", quantity.toString())
             } else {
-                Log.d(
-                    "TAG", "onBindViewHolder___check:" +
-                            " ${mList[position].FOODCATEGORYITEMID}____" +
-                            "${
-                                Constant.getItem(
-                                    context,
-                                    "count_${mList[position].FOODCATEGORYITEMID}"
-                                )
-                            }___" +
-                            "$getSharePrefsItem"
-                )
-
                 if (getSharePrefsItem == Constant.getItem(
                         context,
                         "count_${mList[position].FOODCATEGORYITEMID}"
@@ -94,8 +84,8 @@ class CartDetailsAdapter(private var mList: List<DETAILS>) :
                 ) {
                     holder.tvQuantity.text = getSharePrefsItem
                 }
-
             }
+
             holder.imgPlus.setOnClickListener {
                 quantity = if (getSharePrefsItem == "" || getSharePrefsItem == null) {
                     quantity!! + 1
@@ -136,10 +126,8 @@ class CartDetailsAdapter(private var mList: List<DETAILS>) :
             }
 
         } else {
-
             holder.cardItemView.visibility = View.GONE
         }
-        //      }
 
     }
 

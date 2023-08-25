@@ -34,6 +34,7 @@ class CartDetailsActivity : AppCompatActivity(), FilterableItemListener {
     val listWithLiveId = ArrayList<DETAILS>()
     val listWithoutLiveId = ArrayList<DETAILS>()
     var newList = mutableListOf<DETAILS>()
+    var totalPrice : Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,6 +72,7 @@ class CartDetailsActivity : AppCompatActivity(), FilterableItemListener {
     }
 
     private fun setCardDetails(cartList: ArrayList<DETAILS>) {
+
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         Log.d(TAG, "setCardDetails: ${newList.size}___${cartList.size}")
         adapter = if (newList.isNotEmpty()) {
@@ -81,6 +83,16 @@ class CartDetailsActivity : AppCompatActivity(), FilterableItemListener {
 
         binding.recyclerView.adapter = adapter
         adapter.setItemListener(this)
+        if (adapter.itemCount != 0){
+            binding.tvNoItemFound.visibility = View.GONE
+            binding.recyclerView.visibility = View.VISIBLE
+            binding.btnOrderNow.visibility = View.VISIBLE
+        }
+        else{
+            binding.tvNoItemFound.visibility = View.VISIBLE
+            binding.btnOrderNow.visibility = View.GONE
+            binding.recyclerView.visibility = View.GONE
+        }
         handleClickEvents()
     }
 
@@ -101,6 +113,8 @@ class CartDetailsActivity : AppCompatActivity(), FilterableItemListener {
             Log.d(TAG, "handleClickEvents____liveSize: ${liveDataList.size}")
             Log.d(TAG, "handleClickEvents____filterLocalDataList: ${localDataListFromCallBack}")
 
+            val getFinalPrice = getTotalPrice(localDataListFromCallBack)
+
             val liveId: ArrayList<String> = ArrayList()
             liveDataList.forEach {
                 liveId.add(it.FOODCATEGORYITEMID!!)
@@ -113,11 +127,6 @@ class CartDetailsActivity : AppCompatActivity(), FilterableItemListener {
                 listWithLiveId.clear()
                 listWithoutLiveId.clear()
 
-                Log.d(
-                    TAG,
-                    "handleClickEvents____local__if__1: ${localDataListFromCallBack.size}___${listWithLiveId.size}___${listWithoutLiveId.size}"
-                )
-
                 for (item in localDataListFromCallBack) {
                     if (liveId.contains(item.FOODCATEGORYITEMID)) {
                         listWithLiveId.add(item)
@@ -126,28 +135,20 @@ class CartDetailsActivity : AppCompatActivity(), FilterableItemListener {
                         listWithoutLiveId.add(item)
                     }
                 }
-                Log.d(
-                    TAG,
-                    "handleClickEvents____local__if__2:${localDataListFromCallBack.size}___ ${listWithLiveId.size}___${listWithoutLiveId.size}"
-                )
-
                 if (listWithoutLiveId.isNotEmpty()) {
                     showAlertDialog(listWithLiveId)
                 } else {
-                    listWithLiveId.forEach {
-                        Log.d(
-                            TAG, "handleClickEvents____local___" +
-                                    ":${listWithLiveId.size}___ ${it.ITEAMNAME}____${it.QUANTITY}"
-                        )
-
-                    }
                     Constant.addNewList(this, listWithLiveId,"add")
-                    var price: Int = 0
-                    listWithLiveId.forEach {
-                        price = Constant.getItemPrice(this, "price_${it.FOODCATEGORYITEMID}")!!
-                        Log.d(TAG, "handleClickEvents___price : $price")
-                    }
-                    startActivity(Intent(this, PaymentActivity::class.java))
+                    Log.d(TAG, "handleClickEvents___price : ${getFinalPrice.toString()}")
+                    Log.d(TAG, "handleClickEvents___price : ${localDataListFromCallBack.size}")
+
+                    val intent = Intent(this, PaymentActivity::class.java)
+                    val bundle = Bundle()
+                    bundle.putString("price",getFinalPrice.toString())
+                    bundle.putParcelableArrayList("list",localDataListFromCallBack)
+                    intent.putExtras(bundle)
+                    startActivity(intent)
+
                 }
             }
 
@@ -174,18 +175,6 @@ class CartDetailsActivity : AppCompatActivity(), FilterableItemListener {
         positonList.add(position)
         Log.d(TAG, "onDataFetched: ${mList.ITEAMNAME}")
         getTotalPrice(localDataListFromCallBack)
-
-//        if (mList.ROWNUM != null){
-//            binding.tvNoItemFound.visibility = View.GONE
-//            binding.recyclerView.visibility = View.VISIBLE
-//            binding.btnOrderNow.visibility = View.VISIBLE
-//            localDataListFromCallBack.add(mList)
-//            positonList.add(position)
-//            Log.d(TAG, "onDataFetched: ${mList.ITEAMNAME}")
-//        }
-//        else{
-//            binding.tvNoItemFound.visibility = View.VISIBLE
-//        }
     }
 
     private fun showAlertDialog(mutableList: MutableList<DETAILS>) {
@@ -216,16 +205,21 @@ class CartDetailsActivity : AppCompatActivity(), FilterableItemListener {
 
     private fun getTotalPrice(
         localDataListFromCallBack: ArrayList<DETAILS>
-    ) {
+    ): Int {
         val list = arrayListOf(localDataListFromCallBack)
-        Log.d(TAG, "getTotalPrice__: ${list.flatten().distinct()}")
-        Log.d(TAG, "getTotalPrice__l: ${localDataListFromCallBack.distinct().size}")
+        Log.d(TAG, "getTotalPrice____: ${list.flatten().distinct().size}")
+        Log.d(TAG, "getTotalPrice__l: ${list.size}")
+        var priceList = ArrayList<Int>()
 
-        list.flatten().distinct().forEach {
+        list. flatten().distinct().forEach {
             val finalPrice = Constant.getItemPrice(this, "price_${it.FOODCATEGORYITEMID}")
-            Log.d(TAG, "getTotalPrice: $finalPrice")
+           priceList.add(finalPrice!!)
+            totalPrice = priceList.sum()
+            Log.d(TAG, "getTotalPrice______: $totalPrice")
+
         }
 
+        return totalPrice
     }
 
 }

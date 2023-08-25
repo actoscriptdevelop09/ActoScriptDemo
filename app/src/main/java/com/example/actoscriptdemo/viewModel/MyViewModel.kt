@@ -10,6 +10,7 @@ import com.example.actoscriptdemo.api.FoodCategoryItemApiService
 import com.example.actoscriptdemo.api.FoodCategoryItemResponse
 import com.example.actoscriptdemo.api.FoodCatogoryItemRestClient
 import com.example.actoscriptdemo.model.MyApp
+import com.example.actoscriptdemo.model.PostData
 import com.google.gson.Gson
 import retrofit2.Call
 import retrofit2.Callback
@@ -20,10 +21,11 @@ class MyViewModel : ViewModel() {
     private val liveDataList = MutableLiveData<ArrayList<DETAILS>>()
     val mLiveDataList: LiveData<ArrayList<DETAILS>> get() = liveDataList
     private val TAG = "MyViewModel"
+    val mApiService: FoodCategoryItemApiService =
+        FoodCatogoryItemRestClient.client.create(FoodCategoryItemApiService::class.java)
 
     fun fetchDataFromApi() {
-        val mApiService: FoodCategoryItemApiService =
-            FoodCatogoryItemRestClient.client.create(FoodCategoryItemApiService::class.java);
+
         val call = mApiService.getItems()
         call.enqueue(object : Callback<String> {
 
@@ -61,6 +63,20 @@ class MyViewModel : ViewModel() {
                 Log.d(TAG, "onFailure: ${t.message}")
                 Toast.makeText(MyApp.instance.applicationContext, "${t.message}", Toast.LENGTH_SHORT).show()
             }
+        })
+    }
+
+    fun passItemListToConfirmOrder(postData: PostData) {
+        val call = mApiService.postItems(postData)
+        call.enqueue(object : Callback<String>{
+            override fun onResponse(call: Call<String>, response: Response<String>) {
+                Log.d(TAG, "onResponse___________: ${response.body()}")
+            }
+
+            override fun onFailure(call: Call<String>, t: Throwable) {
+                Log.d(TAG, "onFailure: ${t.message}")
+            }
+
         })
     }
 

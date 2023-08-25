@@ -8,6 +8,8 @@ import com.google.gson.reflect.TypeToken
 
 object Constant {
 
+    var socketUrl = "https://myfirstscoket-crickacto.onrender.com/"
+
     fun saveItem(context: Context, key: String, value: String) {
         val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
@@ -84,21 +86,6 @@ object Constant {
         return sharedPreferences.getBoolean(key, true)
     }
 
-    fun updateListWithNewData(context: Context, newList: MutableList<DETAILS>): MutableList<DETAILS> {
-        newList.forEach {
-            Log.d("TAG___", "updateListWithNewData__updatedList: ${it.ITEAMNAME}__${it.QUANTITY}")
-        }
-        val sharedPreferences =
-            context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
-        val gson = Gson()
-        val updatedJson = gson.toJson(newList)
-        val editor = sharedPreferences.edit()
-        editor.putString("data_", updatedJson)
-        Log.d("TAG___", "addNewList___to_sharePrefs: $updatedJson")
-        editor.apply()
-        return newList
-    }
-
     fun saveItemPrice(context: Context, key: String, value: Int) {
         val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
@@ -109,6 +96,33 @@ object Constant {
     fun getItemPrice(context: Context, key: String): Int? {
         val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         return sharedPreferences.getInt(key, 0)
+    }
+
+    fun saveCategoryItemList(context: Context,mList: ArrayList<DETAILS>){
+        val sharedPreferences =
+            context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        val gson = Gson()
+        val updatedJson = gson.toJson(mList)
+        val editor = sharedPreferences.edit()
+        editor.putString("mainList", updatedJson)
+        Log.d("SharePrefs", "addNewList___to_sharePrefs: $updatedJson")
+        editor.apply()
+    }
+
+    fun getCategoryItemList(context: Context): ArrayList<DETAILS> {
+        val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+
+        val json = sharedPreferences.getString("mainList", "")
+
+        val gson = Gson()
+        val existingList = gson.fromJson<ArrayList<DETAILS>>(
+            json!!,
+            object : TypeToken<ArrayList<DETAILS>>() {}.type
+        )
+
+        Log.d("TAG", "getExistingList+--: $existingList")
+
+        return existingList ?: ArrayList()
     }
 
 }
