@@ -1,37 +1,37 @@
 package com.example.actoscriptdemo.socket
+import android.util.Log
+import com.example.actoscriptdemo.model.SharePreference
 import io.socket.client.IO;
-import java.net.Socket
 import java.net.URISyntaxException
 
 object SocketHandler {
 
-    lateinit var mSocket: Socket
+    private lateinit var socket: io.socket.client.Socket
 
-    @Synchronized
-    fun setSocket() {
+    fun connectWithSocket(){
         try {
-// "http://10.0.2.2:3000" is the network your Android emulator must use to join the localhost network on your computer
-// "http://localhost:3000/" will not work
-// If you want to use your physical phone you could use your ip address plus :3000
-// This will allow your Android Emulator and physical device at your home to connect to the server
-          //  mSocket = IO.socket("http://10.0.2.2:3000")
+            val options = IO.Options.builder().build()
+            socket = IO.socket(SharePreference.socketUrl, options)
         } catch (e: URISyntaxException) {
-
+            e.printStackTrace()
+            Log.d("TAG__Socket", "socketConnection__catch : ${e.reason}")
         }
+
+        socket.on(io.socket.client.Socket.EVENT_CONNECT) {
+            // Handle socket connection success
+            Log.d("TAG__Socket", "socketConnection__c: ${socket.connected()}")
+            if (socket.connected()){
+                socket.emit("SendMessage", "hello socket  im krishna");
+            }
+        }
+
+        socket.on("received_message") { args ->
+            val data = args[0] as String
+            // Handle received message
+            Log.d("TAG__Socket", "socketConnection__msg: $data")
+        }
+
+        socket.connect()
     }
 
-    @Synchronized
-    fun getSocket(): Socket {
-        return mSocket
-    }
-
-    @Synchronized
-    fun establishConnection() {
-      //  mSocket.connect()
-    }
-
-    @Synchronized
-    fun closeConnection() {
-     //   mSocket.disconnect()
-    }
 }

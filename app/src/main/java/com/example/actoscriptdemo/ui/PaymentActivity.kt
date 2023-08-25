@@ -4,24 +4,15 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.example.actoscriptdemo.R
 import com.example.actoscriptdemo.api.DETAILS
 import com.example.actoscriptdemo.databinding.ActivityPaymentBinding
-import com.example.actoscriptdemo.model.Constant
+import com.example.actoscriptdemo.model.SharePreference
 import com.example.actoscriptdemo.model.PostData
-import com.example.actoscriptdemo.socket.SocketViewModel
-import com.example.actoscriptdemo.socket.WebSocketListenerConst
 import com.example.actoscriptdemo.viewModel.MyViewModel
 import io.socket.client.IO
 import io.socket.client.Socket
-import io.socket.emitter.Emitter
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
-import okhttp3.WebSocket
-import okhttp3.WebSocketListener
 import java.net.URISyntaxException
 
 class PaymentActivity : AppCompatActivity() {
@@ -109,7 +100,7 @@ class PaymentActivity : AppCompatActivity() {
         // Create the socket instance
         try {
             val options = IO.Options.builder().build()
-            socket = IO.socket(Constant.socketUrl, options)
+            socket = IO.socket(SharePreference.socketUrl, options)
         } catch (e: URISyntaxException) {
             e.printStackTrace()
             Log.d("TAG__Socket", "socketConnection__catch : ${e.reason}")
@@ -128,7 +119,6 @@ class PaymentActivity : AppCompatActivity() {
             // Handle received message
             Log.d("TAG__Socket", "socketConnection__msg: $data")
         }
-
         socket.connect()
     }
 

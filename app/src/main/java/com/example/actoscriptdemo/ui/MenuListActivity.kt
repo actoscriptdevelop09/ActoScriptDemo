@@ -1,6 +1,5 @@
 package com.example.actoscriptdemo.ui
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -8,7 +7,6 @@ import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
@@ -18,19 +16,11 @@ import com.example.actoscriptdemo.R
 import com.example.actoscriptdemo.adapter.CategoryAdapter
 import com.example.actoscriptdemo.adapter.MenuItemsAdapter
 import com.example.actoscriptdemo.api.DETAILS
-import com.example.actoscriptdemo.api.FoodCategoryItemApiService
-import com.example.actoscriptdemo.api.FoodCategoryItemResponse
-import com.example.actoscriptdemo.api.FoodCatogoryItemRestClient
 import com.example.actoscriptdemo.callBack.AddToCartClickListener
 import com.example.actoscriptdemo.callBack.CategoryItemClickListener
 import com.example.actoscriptdemo.databinding.ActivityMenuListBinding
-import com.example.actoscriptdemo.model.Constant
-import com.example.actoscriptdemo.model.MyApp
+import com.example.actoscriptdemo.model.SharePreference
 import com.example.actoscriptdemo.viewModel.MyViewModel
-import com.google.gson.Gson
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 
 class MenuListActivity : AppCompatActivity(), CategoryItemClickListener, AddToCartClickListener {
@@ -131,9 +121,9 @@ class MenuListActivity : AppCompatActivity(), CategoryItemClickListener, AddToCa
                 val detailList = it
                 detailList.forEach {
                     apiCategoryItemList.add(it)
-                    Constant.saveCategoryItemList(this,apiCategoryItemList)
+                    SharePreference.saveCategoryItemList(this,apiCategoryItemList)
                 }
-                categoryItemList = Constant.getCategoryItemList(this)
+                categoryItemList = SharePreference.getCategoryItemList(this)
                 //first category data set only
                 var previousId: String? = null
                 for (item in categoryItemList) {
@@ -165,10 +155,10 @@ class MenuListActivity : AppCompatActivity(), CategoryItemClickListener, AddToCa
 
             val intent = Intent(this, CartDetailsActivity::class.java)
             intent.putParcelableArrayListExtra("liveData", categoryItemList)
-            Log.d(TAG, "onItemFetched____check__pass: ${Constant.getExistingList(this)}")
+            Log.d(TAG, "onItemFetched____check__pass: ${SharePreference.getExistingList(this)}")
             Log.d(TAG, "onItemFetched____check__pass: ${sharePrefsList.size}")
             if (sharePrefsList.size == 0) {
-                intent.putParcelableArrayListExtra("cart", Constant.getExistingList(this))
+                intent.putParcelableArrayListExtra("cart", SharePreference.getExistingList(this))
             } else {
                 intent.putParcelableArrayListExtra("cart", sharePrefsList)
             }
@@ -197,15 +187,15 @@ class MenuListActivity : AppCompatActivity(), CategoryItemClickListener, AddToCa
                 "onItemFetched____check__else : ${cartList.size}___ ${check}___${sharePrefsList.size}"
             )
         }
-        sharePrefsList = Constant.addNewList(this, cartList, "add")
+        sharePrefsList = SharePreference.addNewList(this, cartList, "add")
     }
 
     override fun onResume() {
         super.onResume()
 
         if (::itemAdapter.isInitialized && ::categoryAdapter.isInitialized) {
-            val existingList = Constant.getExistingList(this)
-            val tempArrayList = Constant.getExistingList(this)
+            val existingList = SharePreference.getExistingList(this)
+            val tempArrayList = SharePreference.getExistingList(this)
             sharePrefsList!!.forEach {
                 if (tempArrayList != null && tempArrayList.isNotEmpty()) {
                     existingList.forEach { exist ->

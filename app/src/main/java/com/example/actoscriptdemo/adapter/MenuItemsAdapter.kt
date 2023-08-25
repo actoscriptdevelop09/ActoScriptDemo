@@ -14,7 +14,7 @@ import com.bumptech.glide.Glide
 import com.example.actoscriptdemo.R
 import com.example.actoscriptdemo.api.DETAILS
 import com.example.actoscriptdemo.callBack.AddToCartClickListener
-import com.example.actoscriptdemo.model.Constant
+import com.example.actoscriptdemo.model.SharePreference
 
 
 class MenuItemsAdapter(private val mList: ArrayList<DETAILS>) :
@@ -96,24 +96,24 @@ class MenuItemsAdapter(private val mList: ArrayList<DETAILS>) :
             }
             editor.apply()
 
-            Log.d("TAG", "updateButtonState___checkkk+=: ${isButtonClicked}___${Constant.getButtonClick(context,"check")}")
+            Log.d("TAG", "updateButtonState___checkkk+=: ${isButtonClicked}___${SharePreference.getButtonClick(context,"check")}")
             updateButtonState( holder.addToCart,holder.tvAddCart,holder.tvCount,holder.imgCart,position,itemsViewModel.FOODCATEGORYITEMID)
         }
 
         // +/- btn click
         var finalPrice : Int = itemsViewModel.PRICE?.toInt()!!
         var quantity = itemsViewModel.QUANTITY?.toInt()!!
-        var getSharePrefs = Constant.getItem(context,"count_${mList[position].FOODCATEGORYITEMID}")
+        var getSharePrefs = SharePreference.getItem(context,"count_${mList[position].FOODCATEGORYITEMID}")
         if (getSharePrefs == "" || getSharePrefs == null){
             holder.tvCount.text = quantity.toString()
         }
         else{
             Log.d("TAG", "onBindViewHolder___check:" +
                     " ${mList[position].FOODCATEGORYITEMID}____" +
-                    "${Constant.getItem(context,"count_${mList[position].FOODCATEGORYITEMID}")}___" +
+                    "${SharePreference.getItem(context,"count_${mList[position].FOODCATEGORYITEMID}")}___" +
                     "$getSharePrefs")
 
-            if(getSharePrefs == Constant.getItem(context,"count_${mList[position].FOODCATEGORYITEMID}")){
+            if(getSharePrefs == SharePreference.getItem(context,"count_${mList[position].FOODCATEGORYITEMID}")){
                 holder.tvCount.text = getSharePrefs
             }
 
@@ -173,9 +173,9 @@ class MenuItemsAdapter(private val mList: ArrayList<DETAILS>) :
         finalPrice: Int
     ) {
         Log.d("TAG", "saveQuantity: $finalPrice")
-       Constant.saveItem(context,"count_${foodcategoryitemid}",quantity)
-       textView.text = Constant.getItem(context,"count_${foodcategoryitemid}")
-       Constant.saveItemPrice(context,"price_${foodcategoryitemid}", finalPrice)
+       SharePreference.saveItem(context,"count_${foodcategoryitemid}",quantity)
+       textView.text = SharePreference.getItem(context,"count_${foodcategoryitemid}")
+       SharePreference.saveItemPrice(context,"price_${foodcategoryitemid}", finalPrice)
     }
 
     private fun SaveItemView(position: Int, itemView: View){
@@ -199,7 +199,7 @@ class MenuItemsAdapter(private val mList: ArrayList<DETAILS>) :
 
         if (!isButtonClicked) {
             Log.d("TAG", "updateButtonState: btnUnClick --> $isButtonClicked")
-            Constant.saveButtonClick(context,"check_${foodcategoryitemid}",!isButtonClicked)
+            SharePreference.saveButtonClick(context,"check_${foodcategoryitemid}",!isButtonClicked)
             addToCart.setBackgroundResource(R.drawable.bf_unselect_item)
             tvAddCart.setTextColor(context.resources.getColor(R.color.black))
                 val uri = "@drawable/baseline_shopping_bag_24"
@@ -216,7 +216,7 @@ class MenuItemsAdapter(private val mList: ArrayList<DETAILS>) :
         }
         else {
             Log.d("TAG", "updateButtonState: btnclick --> $isButtonClicked")
-            Constant.saveButtonClick(context,"check_${foodcategoryitemid}",false)
+            SharePreference.saveButtonClick(context,"check_${foodcategoryitemid}",false)
             addToCart.setBackgroundResource(R.drawable.bg_login_button)
             tvAddCart.setTextColor(context.resources.getColor(R.color.white))
             val uri = "@drawable/baseline_shopping_bag_24_white"

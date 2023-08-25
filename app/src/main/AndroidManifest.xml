@@ -58,10 +58,10 @@
 
 </manifest>
 
-  <!--  SELECT * from Food_Category_Item
+  <!--1.  SELECT * from Food_Category_Item
 
-    delete from Food_Category_Item where Food_Category_Itemid = 134
-        Insert into Food_Category_Item (
+   2. delete from Food_Category_Item where Food_Category_Itemid = 134
+   3. Insert into Food_Category_Item (
         Food_CategoryId
         ,IteamName
         ,Price

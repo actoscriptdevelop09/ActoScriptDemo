@@ -1,14 +1,11 @@
 package com.example.actoscriptdemo.ui
 
-import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
 import android.util.Log
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,7 +13,7 @@ import com.example.actoscriptdemo.adapter.CartDetailsAdapter
 import com.example.actoscriptdemo.api.DETAILS
 import com.example.actoscriptdemo.callBack.FilterableItemListener
 import com.example.actoscriptdemo.databinding.ActivityCartDetailsBinding
-import com.example.actoscriptdemo.model.Constant
+import com.example.actoscriptdemo.model.SharePreference
 import com.example.actoscriptdemo.viewModel.MyViewModel
 
 class CartDetailsActivity : AppCompatActivity(), FilterableItemListener {
@@ -49,7 +46,7 @@ class CartDetailsActivity : AppCompatActivity(), FilterableItemListener {
         filterLocalDataList = removeDuplicatesById(localDataList)
         Log.d(TAG, "getCartList__localDataList: ${localDataList}")
         Log.d(TAG, "getCartList__size: ${filterLocalDataList}")
-        Log.d(TAG, "getCartList__sharePrefs: ${Constant.getExistingList(this)}")
+        Log.d(TAG, "getCartList__sharePrefs: ${SharePreference.getExistingList(this)}")
         setCardDetails(filterLocalDataList)
         liveDataList = getAPIResponse()
 
@@ -80,7 +77,6 @@ class CartDetailsActivity : AppCompatActivity(), FilterableItemListener {
         } else {
             CartDetailsAdapter(cartList)
         }
-
         binding.recyclerView.adapter = adapter
         adapter.setItemListener(this)
         if (adapter.itemCount != 0){
@@ -105,14 +101,12 @@ class CartDetailsActivity : AppCompatActivity(), FilterableItemListener {
     }
 
     private fun handleClickEvents() {
+        localDataListFromCallBack.clear()
         binding.btnOrderNow.setOnClickListener {
-            if (::adapter.isInitialized) {
-                adapter.setItemListener(this)
-            }
 
-            Log.d(TAG, "handleClickEvents____liveSize: ${liveDataList.size}")
             Log.d(TAG, "handleClickEvents____filterLocalDataList: ${localDataListFromCallBack}")
-
+            val dqataList = arrayListOf(localDataListFromCallBack)
+            Log.d(TAG, "handleClickEvents____filterLocalDataList__dis: ${dqataList.distinct().size}")
             val getFinalPrice = getTotalPrice(localDataListFromCallBack)
 
             val liveId: ArrayList<String> = ArrayList()
@@ -138,7 +132,7 @@ class CartDetailsActivity : AppCompatActivity(), FilterableItemListener {
                 if (listWithoutLiveId.isNotEmpty()) {
                     showAlertDialog(listWithLiveId)
                 } else {
-                    Constant.addNewList(this, listWithLiveId,"add")
+                    SharePreference.addNewList(this, listWithLiveId,"add")
                     Log.d(TAG, "handleClickEvents___price : ${getFinalPrice.toString()}")
                     Log.d(TAG, "handleClickEvents___price : ${localDataListFromCallBack.size}")
 
@@ -169,14 +163,6 @@ class CartDetailsActivity : AppCompatActivity(), FilterableItemListener {
         return filteredList
     }
 
-    override fun onDataFetched(mList: DETAILS, position: Int) {
-        Log.d(TAG, "onDataFetched_______mlist: $mList")
-        localDataListFromCallBack.add(mList)
-        positonList.add(position)
-        Log.d(TAG, "onDataFetched: ${mList.ITEAMNAME}")
-        getTotalPrice(localDataListFromCallBack)
-    }
-
     private fun showAlertDialog(mutableList: MutableList<DETAILS>) {
 
         val alertDialogBuilder = AlertDialog.Builder(this)
@@ -187,7 +173,7 @@ class CartDetailsActivity : AppCompatActivity(), FilterableItemListener {
             DialogInterface.OnClickListener { dialog, which ->
                 Log.d(TAG, "showAlertDialog1: ${mutableList.size}")
 
-                newList = Constant.addNewList(this, mutableList,"remove")
+                newList = SharePreference.addNewList(this, mutableList,"remove")
                 Log.d(TAG, "showAlertDialog___size: ${newList.size}")
                 newList.forEach {
                     Log.d(TAG, "showAlertDialog___size: ${it.ITEAMNAME}")
@@ -212,7 +198,7 @@ class CartDetailsActivity : AppCompatActivity(), FilterableItemListener {
         var priceList = ArrayList<Int>()
 
         list. flatten().distinct().forEach {
-            val finalPrice = Constant.getItemPrice(this, "price_${it.FOODCATEGORYITEMID}")
+            val finalPrice = SharePreference.getItemPrice(this, "price_${it.FOODCATEGORYITEMID}")
            priceList.add(finalPrice!!)
             totalPrice = priceList.sum()
             Log.d(TAG, "getTotalPrice______: $totalPrice")
@@ -220,6 +206,16 @@ class CartDetailsActivity : AppCompatActivity(), FilterableItemListener {
         }
 
         return totalPrice
+    }
+
+    override fun onDataFetched(mList: DETAILS, position: Int) {
+        if (!localDataListFromCallBack.contains(mList)) {
+            localDataListFromCallBack.add(mList)
+            Log.d(TAG, "handleClickEvents____onDataFetched_______mlist: ${localDataListFromCallBack.size}")
+            positonList.add(position)
+            Log.d(TAG, "handleClickEvents____onDataFetched: ${mList.ITEAMNAME}")
+            getTotalPrice(localDataListFromCallBack)
+        }
     }
 
 }

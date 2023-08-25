@@ -1,12 +1,14 @@
 package com.example.actoscriptdemo.model
 
 import android.content.Context
+import android.preference.PreferenceManager
 import android.util.Log
 import com.example.actoscriptdemo.api.DETAILS
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-object Constant {
+
+object SharePreference {
 
     var socketUrl = "https://myfirstscoket-crickacto.onrender.com/"
 
@@ -125,4 +127,39 @@ object Constant {
         return existingList ?: ArrayList()
     }
 
+    fun saveUserName(context: Context, key: String, value: String) {
+        val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putString(key, value)
+        editor.apply()
+    }
+
+    fun getUserName(context: Context, key: String): String? {
+        val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        return sharedPreferences.getString(key, "")
+    }
+
+    fun savePassword(context: Context, key: String, value: String) {
+        val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putString(key, value)
+        editor.apply()
+    }
+
+    fun getPassword(context: Context, key: String): String? {
+        val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        return sharedPreferences.getString(key, "")
+    }
+
+    fun saveLoginInfo(context: Context, key: String, value: Boolean){
+        val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putBoolean(key, value)
+        editor.apply()
+    }
+
+    fun getLoginInfo(context: Context, key: String): Boolean? {
+        val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        return sharedPreferences.getBoolean(key, false)
+    }
 }

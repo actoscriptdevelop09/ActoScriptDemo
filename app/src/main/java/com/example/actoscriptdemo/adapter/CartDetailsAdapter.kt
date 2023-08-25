@@ -8,17 +8,19 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.actoscriptdemo.R
 import com.example.actoscriptdemo.api.DETAILS
 import com.example.actoscriptdemo.callBack.FilterableItemListener
-import com.example.actoscriptdemo.model.Constant
+import com.example.actoscriptdemo.model.SharePreference
 
 class CartDetailsAdapter(private var mList: List<DETAILS>) :
     RecyclerView.Adapter<CartDetailsAdapter.ViewHolder>() {
     private lateinit var context: Context
-    private lateinit var itemListener: FilterableItemListener
+    private  var itemListener: FilterableItemListener ?= null
     private var newList: MutableList<DETAILS> = mutableListOf()
     private var newNewList: MutableList<DETAILS> = mutableListOf()
 
@@ -50,13 +52,14 @@ class CartDetailsAdapter(private var mList: List<DETAILS>) :
             Glide.with(context)
                 .load( itemsViewModel.IMAGEURL)
                 .into(holder.itemImage)
-            itemListener.onDataFetched(mList[position], position)
+
+            itemListener?.onDataFetched(mList[position], position)
             holder.cardItemView.visibility = View.VISIBLE
             holder.tvItemName.text = itemsViewModel.ITEAMNAME
             holder.tvItemPrice.text = itemsViewModel.PRICE
 
-            var finalPrice : Int? = Constant.getItemPrice(context, "price_${mList[position].FOODCATEGORYITEMID}")
-            var getSharePrefsItemPrice = Constant.getItemPrice(context, "price_${mList[position].FOODCATEGORYITEMID}")
+            var finalPrice : Int? = SharePreference.getItemPrice(context, "price_${mList[position].FOODCATEGORYITEMID}")
+            var getSharePrefsItemPrice = SharePreference.getItemPrice(context, "price_${mList[position].FOODCATEGORYITEMID}")
             Log.d("TAG", "onBindViewHolder___price: $finalPrice")
             if (getSharePrefsItemPrice !=  0) {
                 finalPrice = getSharePrefsItemPrice!!
@@ -64,7 +67,7 @@ class CartDetailsAdapter(private var mList: List<DETAILS>) :
             } else {
                 finalPrice = itemsViewModel.PRICE!!.toInt()
                 holder.tvItemPrice.text = itemsViewModel.PRICE
-                Constant.saveItemPrice(context,"price_${itemsViewModel.FOODCATEGORYITEMID}", itemsViewModel.PRICE!!.toInt())
+                SharePreference.saveItemPrice(context,"price_${itemsViewModel.FOODCATEGORYITEMID}", itemsViewModel.PRICE!!.toInt())
             }
             Log.d("TAG", "onBindViewHolder___finalPrice: $finalPrice")
 
@@ -72,12 +75,12 @@ class CartDetailsAdapter(private var mList: List<DETAILS>) :
             Log.d("TAG", "onBindViewHolder__quantity: $quantity")
             holder.tvQuantity.text = quantity.toString()
             var getSharePrefsItem =
-                Constant.getItem(context, "count_${mList[position].FOODCATEGORYITEMID}")
+                SharePreference.getItem(context, "count_${mList[position].FOODCATEGORYITEMID}")
             if (getSharePrefsItem == "" || getSharePrefsItem == null) {
                 holder.tvQuantity.text = quantity.toString()
-                Constant.saveItem(context, "count_${mList[position].FOODCATEGORYITEMID}", quantity.toString())
+                SharePreference.saveItem(context, "count_${mList[position].FOODCATEGORYITEMID}", quantity.toString())
             } else {
-                if (getSharePrefsItem == Constant.getItem(
+                if (getSharePrefsItem == SharePreference.getItem(
                         context,
                         "count_${mList[position].FOODCATEGORYITEMID}"
                     )
@@ -166,10 +169,10 @@ class CartDetailsAdapter(private var mList: List<DETAILS>) :
         tvPrice : TextView,
         finalPrice: Int
     ) {
-        Constant.saveItem(context, "count_${foodcategoryitemid}", quantity)
-        textView.text = Constant.getItem(context, "count_${foodcategoryitemid}")
-        Constant.saveItemPrice(context,"price_${foodcategoryitemid}", finalPrice)
-        tvPrice.text = Constant.getItemPrice(context, "price_${foodcategoryitemid}").toString()
+        SharePreference.saveItem(context, "count_${foodcategoryitemid}", quantity)
+        textView.text = SharePreference.getItem(context, "count_${foodcategoryitemid}")
+        SharePreference.saveItemPrice(context,"price_${foodcategoryitemid}", finalPrice)
+        tvPrice.text = SharePreference.getItemPrice(context, "price_${foodcategoryitemid}").toString()
 
     }
 
@@ -178,10 +181,6 @@ class CartDetailsAdapter(private var mList: List<DETAILS>) :
         newList = list
         Log.d("TAG", "setFilterList: ${newList.size}")
         notifyDataSetChanged()
-    }
-
-    fun setCartList(){
-
     }
 
 }
